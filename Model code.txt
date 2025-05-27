@@ -1,0 +1,83 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = pd.read_csv('../data/raw/startups.csv')
+print("Shape of the dataset:", df.shape)
+print("\nColumn Names:", df.columns.tolist())
+df.head()
+print(df.isnull().sum())
+print(df.describe())
+print(df.dtypes)
+plt.figure(figsize=(8, 6))
+numeric_df = df.select_dtypes(include=['float64', 'int64'])
+plt.figure(figsize=(8, 6))
+sns.heatmap(numeric_df.corr(), annot=True, cmap='coolwarm')
+plt.title("Correlation Heatmap")
+plt.title("Correlation Heatmap")
+plt.show()
+sns.histplot(df['Profit'], kde=True)
+plt.title('Distribution of Profit')
+plt.xlabel('Profit')
+plt.ylabel('Frequency')
+plt.show()
+print("Missing Values:\n", df.isnull().sum())
+sns.countplot(x='State', data=df)
+plt.xticks(rotation=45)
+plt.title("State-wise Startup Count")
+plt.show()
+sns.scatterplot(x='R&D Spend', y='Profit', data=df)
+plt.title("R&D Spend vs Profit")
+plt.show()
+sns.boxplot(x='State', y='Profit', data=df)
+plt.xticks(rotation=45)
+plt.title("State vs Profit")
+plt.show()
+print(df.columns)
+print(df.columns.tolist())
+X = df.drop('Profit', axis=1)
+y = df['Profit']
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
+from sklearn.metrics import r2_score
+print("R² Score:", r2_score(y_test, y_pred))
+coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=['Coefficient'])
+print(coeff_df)
+import matplotlib.pyplot as plt
+plt.scatter(y_test, y_pred, color='blue')
+plt.xlabel('Actual Profit')
+plt.ylabel('Predicted Profit')
+plt.title('Actual vs Predicted Profit')
+plt.grid(True)
+plt.show()
+import seaborn as sns
+plt.figure(figsize=(10,6))
+sns.heatmap(X.corr(), annot=True, cmap='coolwarm')
+plt.title('Feature Correlation Matrix')
+plt.show()
+new_data = [[160000, 130000, 300000, 0, 1]]  # Example input (manual encoding for 'State')
+new_prediction = regressor.predict(new_data)
+print("Predicted Profit:", new_prediction[0])
+import joblib
+joblib.dump(regressor, 'startup_profit_model.pkl')
+import joblib
+
+# Load the model
+loaded_model = joblib.load('startup_profit_model.pkl')
+
+# Example input with column names
+import pandas as pd
+sample_input = pd.DataFrame([[160000, 130000, 300000, 0, 1]],columns=['R&D Spend', 'Administration', 'Marketing Spend', 'State_Florida', 'State_New York'])
+# Make prediction
+result = loaded_model.predict(sample_input)
+print("Predicted Profit from loaded model:", result[0])
+def predict_profit(input_data, model_path='startup_profit_model.pkl'):
+    model = joblib.load(model_path)
+    df_input = pd.DataFrame(input_data, columns=[
+        'R&D Spend', 'Administration', 'Marketing Spend', 'State_Florida', 'State_New York'
+    ])
+    prediction = model.predict(df_input)
+    return prediction[0]
