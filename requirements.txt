@@ -120,4 +120,4 @@ seaborn
 scikit-learn
 xgboost
 jupyter
-streamlit
+streamlit==1.34.0
